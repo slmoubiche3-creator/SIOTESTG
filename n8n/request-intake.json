@@ -1,0 +1,64 @@
+{
+  "name": "Systeme.io request intake",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "request-intake",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "ec7715e1-b208-40ce-9d35-724c48c58d5c",
+      "name": "Receive customer requests",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [240, 300],
+      "webhookId": "ec7715e1-b208-40ce-9d35-724c48c58d5c"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/intake",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify(typeof $json.body === 'string' ? { csv: $json.body } : ($json.body ?? $json)) }}",
+        "options": {}
+      },
+      "id": "8f8e65e5-8cfb-48bd-a5e6-66194709af4c",
+      "name": "Classify and store requests",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_AFTER_IMPORT",
+          "name": "Request Triage API Bearer"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Receive customer requests": {
+      "main": [
+        [
+          {
+            "node": "Classify and store requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cb33bfc1-33f2-4e44-a720-42044ab1a2d8",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

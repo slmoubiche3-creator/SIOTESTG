@@ -15,3 +15,5 @@ Task 1: complete — API/database tests 3/3 pass; local socket testing required 
 Ruling: Interpret a month/day-only value like `Oct 9` using the test reference year, 2026; all backlog records are from October 2026. Cost if wrong: a yearless date from a different year would be assigned to 2026.
 
 Task 2: complete — 30/30 CSV rows import; 7 critical alerts surface, including the grouped Stripe incident; triage and API suites pass 11/11. The parser flags missing/malformed senders, classifies the supplied six languages, ignores the injected urgency/routing instruction, and marks Chloé's two-issue request for review.
+
+Task 3: complete — n8n workflow JSON passes its structural checks; the app API has already passed representative JSON and CSV intake checks. Live n8n execution is unavailable because n8n is not installed here; README explains credential and URL setup and does not claim a live integration.
