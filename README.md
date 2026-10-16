@@ -14,7 +14,7 @@ Open <http://127.0.0.1:8000>. The app stores its data in `data/requests.sqlite3`
 
 ## How it works
 
-The dashboard and SQLite database are the working tool. The n8n workflow receives a CSV or request payload and forwards it to the app. The app applies visible rules, stores each original message, and creates an alert for critical requests. Similar Stripe failures are grouped as one incident without deleting individual messages.
+The dashboard and SQLite database are the working tool. Import `data/requests-backlog.csv` from the **Import CSV** button to load the sample inbox. The n8n workflow receives a CSV or request payload and forwards it to the app. The app applies visible rules, stores each original message, and creates an alert for critical requests. Similar Stripe failures are grouped as one incident without deleting individual messages.
 
 Classification is rule-based so the reasons are visible and repeatable. Customer text is treated as data; it cannot change its own team or urgency. Unclear senders, dates, or messages are flagged for review.
 

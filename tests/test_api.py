@@ -119,6 +119,38 @@ class RequestApiTests(unittest.TestCase):
         stripe = [item for item in listing["messages"] if item["related_group"] == "incident:stripe-checkout"]
         self.assertEqual(len(stripe), 4)
 
+    def test_urgency_review_filters_and_summary_alert_groups(self):
+        db.insert_message(
+            self.message(
+                urgency="Critical",
+                needs_review=True,
+                review_flags=["suspicious_sender"],
+                related_group="incident:example",
+                alert_reason="Possible account compromise.",
+            )
+        )
+        db.insert_message(
+            self.message(
+                urgency="Critical",
+                related_group="incident:example",
+                alert_reason="Possible account compromise.",
+            )
+        )
+        db.insert_message(self.message(urgency="Normal", team="Support"))
+
+        status, filtered = request_json(
+            self.base_url + "/api/messages?urgency=Critical&needs_review=true"
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(len(filtered["messages"]), 1)
+        self.assertEqual(filtered["messages"][0]["review_flags"], ["suspicious_sender"])
+
+        status, summary = request_json(self.base_url + "/api/summary")
+        self.assertEqual(status, 200)
+        self.assertEqual(summary["critical"], 2)
+        self.assertEqual(len(summary["alerts"]), 2)
+        self.assertEqual(summary["related_groups"][0]["count"], 2)
+
 
 if __name__ == "__main__":
     unittest.main()

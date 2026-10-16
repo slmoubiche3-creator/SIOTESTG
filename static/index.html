@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f8fb">
+  <title>Request Desk · systeme.io</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="Request Desk home">
+        <span class="brand-mark">s</span>
+        <span><strong>request desk</strong><small>systeme.io support</small></span>
+      </a>
+
+      <nav aria-label="Main inbox">
+        <p class="nav-label">WORKSPACE</p>
+        <button class="nav-item active" data-view="all"><span class="nav-icon">◫</span> All requests <span class="nav-count" id="all-count">0</span></button>
+        <button class="nav-item" data-view="alerts"><span class="nav-icon alert-icon">!</span> Urgent now <span class="nav-count urgent-count" id="urgent-count">0</span></button>
+        <button class="nav-item" data-view="review"><span class="nav-icon">⌕</span> Needs review <span class="nav-count" id="review-count">0</span></button>
+        <button class="nav-item" data-view="groups"><span class="nav-icon">⛓</span> Related issues <span class="nav-count" id="group-count">0</span></button>
+      </nav>
+
+      <div class="team-section">
+        <p class="nav-label">TEAM QUEUES</p>
+        <div id="team-nav" class="team-nav"></div>
+      </div>
+
+      <div class="sidebar-footer">
+        <span class="status-dot"></span>
+        <span><strong>Demo workspace</strong><small>Reference date · Oct 12, 2026</small></span>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Inbox</span><span class="slash">/</span><strong id="crumb-title">All requests</strong></div>
+        <div class="top-actions">
+          <span class="integration-pill"><span class="integration-dot"></span> n8n workflow · configure to connect</span>
+          <label class="button button-primary import-button" for="csv-file">＋ <span>Import CSV</span></label>
+          <input id="csv-file" type="file" accept=".csv,text/csv" hidden>
+        </div>
+      </header>
+
+      <section class="page-heading">
+        <div>
+          <p class="eyebrow">CUSTOMER OPERATIONS</p>
+          <h1 id="page-title">All requests</h1>
+          <p class="page-subtitle">Every message in one place. Start with what needs attention.</p>
+        </div>
+        <div class="date-chip"><span class="calendar-icon">▦</span> Mon, Oct 12, 2026</div>
+      </section>
+
+      <section class="metrics" aria-label="Inbox summary">
+        <article class="metric-card"><div class="metric-top"><span>Open requests</span><span class="metric-icon blue">◫</span></div><strong id="metric-open">—</strong><small>Across all teams</small></article>
+        <article class="metric-card metric-card-critical"><div class="metric-top"><span>Critical</span><span class="metric-icon red">!</span></div><strong id="metric-critical">—</strong><small>Needs immediate attention</small></article>
+        <article class="metric-card"><div class="metric-top"><span>Needs review</span><span class="metric-icon amber">⌕</span></div><strong id="metric-review">—</strong><small>Unclear or unusual messages</small></article>
+        <article class="metric-card"><div class="metric-top"><span>Related issues</span><span class="metric-icon violet">⛓</span></div><strong id="metric-groups">—</strong><small>Repeated reports grouped</small></article>
+      </section>
+
+      <section id="critical-banner" class="critical-banner" hidden></section>
+
+      <section class="issue-section" id="issues-section" hidden>
+        <div class="section-heading"><div><h2>Issues gaining momentum</h2><p>Related messages stay separate so every customer remains visible.</p></div><span class="section-mark">PATTERNS</span></div>
+        <div class="issue-grid" id="issue-grid"></div>
+      </section>
+
+      <section class="inbox-section">
+        <div class="inbox-heading">
+          <div><h2 id="list-title">Inbox</h2><p id="list-subtitle">Review, assign, and update requests.</p></div>
+          <span class="result-count" id="result-count">0 requests</span>
+        </div>
+        <div class="filters">
+          <label class="search-box"><span>⌕</span><input id="search-input" type="search" placeholder="Search messages or customers…" aria-label="Search requests"></label>
+          <select id="priority-filter" aria-label="Filter by urgency"><option value="">All priorities</option><option>Critical</option><option>High</option><option>Normal</option><option>Low</option></select>
+          <select id="status-filter" aria-label="Filter by status"><option value="">All statuses</option><option>Nouveau</option><option>En cours</option><option>En attente</option><option>Résolu</option></select>
+          <label class="review-filter"><input id="review-filter" type="checkbox"><span>Review only</span></label>
+        </div>
+        <div id="request-list" class="request-list" aria-live="polite"></div>
+        <div id="empty-state" class="empty-state" hidden>
+          <span class="empty-mark">✓</span>
+          <h3>All caught up</h3>
+          <p>No requests match these filters. Try another team or clear your search.</p>
+        </div>
+        <div id="loading-state" class="loading-state">Loading requests…</div>
+      </section>
+
+      <footer class="page-footer"><span>Local demo · rules-based triage</span><span>External notifications are not connected</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

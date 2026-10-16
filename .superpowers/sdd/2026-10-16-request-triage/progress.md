@@ -17,3 +17,7 @@ Ruling: Interpret a month/day-only value like `Oct 9` using the test reference y
 Task 2: complete — 30/30 CSV rows import; 7 critical alerts surface, including the grouped Stripe incident; triage and API suites pass 11/11. The parser flags missing/malformed senders, classifies the supplied six languages, ignores the injected urgency/routing instruction, and marks Chloé's two-issue request for review.
 
 Task 3: complete — n8n workflow JSON passes its structural checks; the app API has already passed representative JSON and CSV intake checks. Live n8n execution is unavailable because n8n is not installed here; README explains credential and URL setup and does not claim a live integration.
+
+Task 4: complete — dashboard added with team queues, critical/review/related views, search and filters, assignment/status controls, and CSV import. Browser confirmed the dashboard loads; automated suite passes 13/13. Import file chooser interaction was not verified in-browser, but the CSV intake API is covered by tests with the supplied file.
+
+Task 5: complete — README documents operation and demo limits; removed external font dependency so the UI does not need network access. Final review: no known secrets, demo DB, or runtime cache included; n8n not live-tested and external notifications are not connected.
