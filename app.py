@@ -165,6 +165,7 @@ def create_server(db_path, intake_token=None, host="127.0.0.1", port=0):
             self.send_response(200)
             self.send_header("Content-Type", content_type)
             self.send_header("Content-Length", str(len(data)))
+            self.send_header("Cache-Control", "no-store")
             self.end_headers()
             self.wfile.write(data)
 
