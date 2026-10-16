@@ -8,6 +8,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
 
 import db
+import triage
 
 
 STATUSES = {"Nouveau", "En cours", "En attente", "Résolu"}
@@ -84,20 +85,26 @@ def create_server(db_path, intake_token=None, host="127.0.0.1", port=0):
                     return
             try:
                 payload = _read_json(self)
-                records = payload.get("messages") if isinstance(payload, dict) else None
-                if not isinstance(records, list) or not records:
-                    raise ValueError("messages must be a non-empty list")
-                if any(not isinstance(record, dict) for record in records):
-                    raise ValueError("each message must be an object")
+                if not isinstance(payload, dict):
+                    raise ValueError("Request body must be an object")
+                if isinstance(payload.get("csv"), str):
+                    records = triage.parse_csv(payload["csv"])
+                else:
+                    records = payload.get("messages")
+                    if not isinstance(records, list) or not records:
+                        raise ValueError("messages must be a non-empty list or csv text is required")
+                    records = triage.normalize_records(records)
+                if not records:
+                    raise ValueError("No valid messages were found")
                 ids = [db.insert_message(record) for record in records]
             except ValueError as error:
                 _send_json(self, 400, {"error": str(error)})
                 return
-            summary = db.get_summary()
+            alert_count = sum(1 for record in records if record["urgency"] == "Critical")
             _send_json(
                 self,
                 201,
-                {"count": len(ids), "ids": ids, "alerts": summary["critical"]},
+                {"count": len(ids), "ids": ids, "alerts": alert_count},
             )
 
         def do_PATCH(self):

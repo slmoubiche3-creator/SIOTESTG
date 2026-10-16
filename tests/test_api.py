@@ -4,6 +4,7 @@ import threading
 import unittest
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 import app
 import db
@@ -43,7 +44,7 @@ class RequestApiTests(unittest.TestCase):
             "received_at_raw": "2026-10-12 08:30",
             "source": "email",
             "sender": "Ari Example <ari@example.com>",
-            "message": "My payment failed at checkout.",
+            "message": "I was charged twice on my annual plan and need a refund.",
             "team": "Billing",
             "topic": "payment",
             "urgency": "High",
@@ -99,6 +100,24 @@ class RequestApiTests(unittest.TestCase):
         db.init_db(self.db_path)
         stored = db.list_messages(team="Billing", status="En cours")
         self.assertEqual(stored[0]["assignee"], "Alex")
+
+    def test_intake_imports_and_classifies_the_provided_csv(self):
+        csv_path = Path(__file__).resolve().parents[1] / "data" / "requests-backlog.csv"
+        status, result = request_json(
+            self.base_url + "/api/intake",
+            "POST",
+            {"csv": csv_path.read_text(encoding="utf-8")},
+            token="demo-secret",
+        )
+        self.assertEqual(status, 201)
+        self.assertEqual(result["count"], 30)
+        self.assertEqual(result["alerts"], 7)
+
+        status, listing = request_json(self.base_url + "/api/messages?urgency=Critical")
+        self.assertEqual(status, 200)
+        self.assertEqual(len(listing["messages"]), 7)
+        stripe = [item for item in listing["messages"] if item["related_group"] == "incident:stripe-checkout"]
+        self.assertEqual(len(stripe), 4)
 
 
 if __name__ == "__main__":
