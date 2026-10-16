@@ -13,6 +13,7 @@ import triage
 
 STATUSES = {"Nouveau", "En cours", "En attente", "Résolu"}
 STATIC_DIR = Path(__file__).resolve().parent / "static"
+SAMPLE_CSV = Path(__file__).resolve().parent / "data" / "requests-backlog.csv"
 MAX_BODY_BYTES = 2 * 1024 * 1024
 
 
@@ -74,6 +75,18 @@ def create_server(db_path, intake_token=None, host="127.0.0.1", port=0):
 
         def do_POST(self):
             parsed = urlsplit(self.path)
+            if parsed.path == "/api/visit":
+                try:
+                    records = triage.parse_csv(SAMPLE_CSV.read_text(encoding="utf-8"))
+                    if not records:
+                        raise ValueError("The sample backlog is empty")
+                    ids = db.replace_messages(records)
+                except (OSError, ValueError) as error:
+                    _send_json(self, 500, {"error": "Could not reset the demo inbox: " + str(error)})
+                    return
+                alert_count = sum(1 for record in records if record["urgency"] == "Critical")
+                _send_json(self, 200, {"count": len(ids), "alerts": alert_count})
+                return
             if parsed.path != "/api/intake":
                 _send_json(self, 404, {"error": "Not found"})
                 return

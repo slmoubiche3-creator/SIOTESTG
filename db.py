@@ -129,6 +129,15 @@ def insert_message(message):
         return message_id
 
 
+def replace_messages(messages):
+    """Replace all demo messages and alerts with a fresh set of records."""
+    with _connect() as connection:
+        connection.execute("DELETE FROM alerts")
+        connection.execute("DELETE FROM messages")
+        connection.execute("DELETE FROM sqlite_sequence WHERE name = 'messages'")
+    return [insert_message(message) for message in messages]
+
+
 def list_messages(team=None, status=None, urgency=None, needs_review=None, query=None):
     clauses = []
     parameters = []

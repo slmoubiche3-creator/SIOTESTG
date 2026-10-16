@@ -40,6 +40,7 @@
         <div class="breadcrumb"><span>Inbox</span><span class="slash">/</span><strong id="crumb-title">All requests</strong></div>
         <div class="top-actions">
           <span class="integration-pill"><span class="integration-dot"></span> n8n workflow · configure to connect</span>
+          <button id="start-tour" class="button button-secondary" type="button">? How to use</button>
           <label class="button button-primary import-button" for="csv-file">＋ <span>Import CSV</span></label>
           <input id="csv-file" type="file" accept=".csv,text/csv" hidden>
         </div>
@@ -92,5 +93,10 @@
     </main>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="tour-backdrop" class="tour-backdrop" hidden>
+    <section class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-title">
+      <div id="tour-content"></div>
+    </section>
+  </div>
 </body>
 </html>

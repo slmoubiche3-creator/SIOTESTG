@@ -1,5 +1,11 @@
 const TEAMS = ["Support", "Tech", "Billing", "Deliverability", "Migration", "Product", "Security & Legal"];
 const ASSIGNEES = ["Alex Rivera", "Maya Chen", "Sam Martin", "Jordan Lee"];
+const TOUR_STEPS = [
+  { eyebrow: "Start here", title: "Your inbox at a glance", text: "These cards summarize open requests, critical cases, messages to review, and repeated issues." },
+  { eyebrow: "Team queues", title: "Find the right team", text: "Choose a team on the left to see only the requests assigned to Support, Tech, Billing, or another team." },
+  { eyebrow: "What needs attention", title: "Spot urgent and repeated issues", text: "Urgent now collects critical requests. Related issues groups similar reports so the team can spot a wider problem." },
+  { eyebrow: "Work a request", title: "Assign it and track progress", text: "Each request shows why it was routed. Use the controls on its right to choose an assignee and update its status." },
+];
 
 const state = {
   view: "all",
@@ -237,7 +243,75 @@ async function importCsv(file) {
   }
 }
 
+let tourIndex = 0;
+function renderTour() {
+  const step = TOUR_STEPS[tourIndex];
+  const progress = TOUR_STEPS.map((_, index) => `<span class="${index <= tourIndex ? "active" : ""}"></span>`).join("");
+  $("tour-content").innerHTML = `
+    <div class="tour-topline"><span>${escapeHtml(step.eyebrow)}</span><span class="tour-step">${tourIndex + 1} / ${TOUR_STEPS.length}</span></div>
+    <h2 id="tour-title">${escapeHtml(step.title)}</h2>
+    <p>${escapeHtml(step.text)}</p>
+    <div class="tour-progress" aria-hidden="true">${progress}</div>
+    <div class="tour-actions"><button class="tour-skip" id="tour-skip" type="button">Close guide</button>
+      <div class="tour-actions-right">${tourIndex ? '<button class="button button-secondary" id="tour-back" type="button">Back</button>' : ""}
+        <button class="button button-primary" id="tour-next" type="button">${tourIndex === TOUR_STEPS.length - 1 ? "Done" : "Next"}</button></div></div>`;
+}
+
+function startTour() {
+  tourIndex = 0;
+  renderTour();
+  $("tour-backdrop").hidden = false;
+  $("tour-next").focus();
+}
+
+function closeTour() {
+  $("tour-backdrop").hidden = true;
+  $("start-tour").focus();
+}
+
+async function startVisit() {
+  try {
+    const response = await fetch("/api/visit", { method: "POST" });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || "Could not reset the demo inbox");
+    await refresh();
+    startTour();
+  } catch (error) {
+    $("loading-state").textContent = "Could not start the demo. Refresh the page and try again.";
+    $("loading-state").classList.add("load-error");
+    showToast(error.message, true);
+  }
+}
+
 document.addEventListener("click", (event) => {
+  if (event.target.closest("#start-tour")) {
+    startTour();
+    return;
+  }
+  if (event.target.closest("#tour-skip")) {
+    closeTour();
+    return;
+  }
+  if (event.target.closest("#tour-back")) {
+    tourIndex = Math.max(0, tourIndex - 1);
+    renderTour();
+    $("tour-back").focus();
+    return;
+  }
+  if (event.target.closest("#tour-next")) {
+    if (tourIndex === TOUR_STEPS.length - 1) {
+      closeTour();
+      return;
+    }
+    tourIndex += 1;
+    renderTour();
+    $("tour-next").focus();
+    return;
+  }
+  if (event.target.id === "tour-backdrop") {
+    closeTour();
+    return;
+  }
   const viewButton = event.target.closest("[data-view]");
   if (viewButton) {
     state.view = viewButton.dataset.view;
@@ -278,4 +352,8 @@ document.addEventListener("input", (event) => {
   }
 });
 
-refresh();
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !$("tour-backdrop").hidden) closeTour();
+});
+
+startVisit();
